@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 import remarkMath from 'remark-math';
+import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
 
 // https://astro.build/config
@@ -12,7 +13,7 @@ export default defineConfig({
 	base: '/math_page/',
 	integrations: [mdx(), sitemap()],
 	markdown: {
-		remarkPlugins: [remarkMath],
+		remarkPlugins: [remarkMath, remarkBreaks],
 		rehypePlugins: [rehypeKatex],
 	},
 });
