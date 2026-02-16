@@ -10,9 +10,15 @@ import rehypeKatex from 'rehype-katex';
 export default defineConfig({
 	site: 'https://i-2ki.github.io/math_page/',
 	base: '/math_page/',
-	integrations: [mdx(), sitemap()],
+	integrations: [
+		mdx({
+			remarkPlugins: [[remarkMath, { singleDollarTextMath: false }]],
+			rehypePlugins: [rehypeKatex],
+		}),
+		sitemap()
+	],
 	markdown: {
-		remarkPlugins: [remarkMath],
+		remarkPlugins: [[remarkMath, { singleDollarTextMath: false }]],
 		rehypePlugins: [rehypeKatex],
 	},
 });
