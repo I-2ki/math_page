@@ -6,9 +6,13 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & {
+	prev?: CollectionEntry<'blog'> | null;
+	next?: CollectionEntry<'blog'> | null;
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, prev, next } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <html lang="en">
@@ -53,6 +57,32 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			.last-updated-on {
 				font-style: italic;
 			}
+			.nav-links {
+				width: 720px;
+				max-width: calc(100% - 2em);
+				margin: 2em auto;
+				padding: 1em 0;
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 2em;
+				border-top: 1px solid rgb(var(--gray-light));
+				border-bottom: 1px solid rgb(var(--gray-light));
+			}
+			.nav-links a {
+				display: block;
+				padding: 0.5em;
+				color: var(--accent);
+				text-decoration: none;
+			}
+			.nav-links a:hover {
+				text-decoration: underline;
+			}
+			.nav-prev {
+				text-align: left;
+			}
+			.nav-next {
+				text-align: right;
+			}
 		</style>
 	</head>
 
@@ -79,6 +109,22 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<hr />
 					</div>
 					<slot />
+					<div class="nav-links">
+						<div class="nav-prev">
+							{prev && (
+								<a href={`${baseUrl}blog/${prev.id}/`}>
+									← {prev.data.title}
+								</a>
+							)}
+						</div>
+						<div class="nav-next">
+							{next && (
+								<a href={`${baseUrl}blog/${next.id}/`}>
+									{next.data.title} →
+								</a>
+							)}
+						</div>
+					</div>
 				</div>
 			</article>
 		</main>
