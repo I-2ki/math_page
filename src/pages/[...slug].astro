@@ -1,0 +1,38 @@
+---
+import BlogPost from '@/layouts/BlogPost.astro';
+import Link from '@/ui/Link.astro';
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: post,
+	}));
+}
+
+type Props = CollectionEntry<'blog'>;
+
+const post = Astro.props;
+const { Content } = await render(post);
+
+// すべての記事を取得
+const allPosts = await getCollection('blog');
+const postMap = new Map<string, CollectionEntry<'blog'>>();
+allPosts.forEach(p => {
+	postMap.set(p.id, p);
+});
+
+// prev/nextの記事を取得
+const prevPost = post.data.prev ? postMap.get(post.data.prev) : null;
+const nextPost = post.data.next ? postMap.get(post.data.next) : null;
+---
+
+<BlogPost {...post.data} postId={post.id}>
+	<Content />
+	<div style="margin-top: 2em; display: flex; gap: 1em;">
+		{prevPost && <Link href={`/${prevPost.id}/`}>← {prevPost.data.title}</Link>}
+		<div style = "margin-left: auto;"></div>
+		{nextPost && <Link href={`/${nextPost.id}/`}>→ {nextPost.data.title}</Link>}
+	</div>
+</BlogPost>

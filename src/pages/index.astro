@@ -1,18 +1,57 @@
 ---
 import BaseHead from '@/components/BaseHead.astro';
+import { getCollection } from 'astro:content';
+
+const getOrderNumber = (id: string, nextField?: string) => {
+	// nextフィールドがあればそこから数字を抽出、なければIDから抽出
+	const source = nextField || id;
+	const match = source.match(/(\d+)(?!.*\d)/);
+	return match ? parseInt(match[1]) : Infinity;
+};
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => getOrderNumber(a.id, a.data.next) - getOrderNumber(b.id, b.data.next)
+);
+
+const baseUrl = import.meta.env.BASE_URL;
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
-		<BaseHead title="数学ノート" />
+		<BaseHead title="Blog" />
+		<style>
+			main {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 2em 1em;
+			}
+			ul {
+				list-style: none;
+				padding: 0;
+			}
+			li {
+				margin-bottom: 1em;
+			}
+			a {
+				text-decoration: none;
+				color: inherit;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+		</style>
 	</head>
 	<body>
 		<main>
-			<h1>数学ノート</h1>
-			<p>線形代数や他の数学トピックについてのノート</p>
 			<ul>
-				<li><a href="/math_page/blog">ブログを見る</a></li>
+				{posts.map((post) => (
+					<li>
+						<a href={`${baseUrl}${post.id}/`}>
+							<h3>{post.data.title}</h3>
+						</a>
+					</li>
+				))}
 			</ul>
 		</main>
 	</body>
