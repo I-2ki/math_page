@@ -1,5 +1,6 @@
 ---
 import BaseHead from '@/components/BaseHead.astro';
+import { FOLDER_CONFIG } from '@/const';
 import { getCollection } from 'astro:content';
 
 const getOrderNumber = (id: string, nextField?: string) => {
@@ -9,8 +10,23 @@ const getOrderNumber = (id: string, nextField?: string) => {
 	return match ? parseInt(match[1]) : Infinity;
 };
 
+const getFolderName = (id: string) => id.split('/')[0];
+
 const posts = (await getCollection('blog')).sort(
 	(a, b) => getOrderNumber(a.id, a.data.next) - getOrderNumber(b.id, b.data.next)
+);
+
+// フォルダごとにグループ化
+const groupedPosts = posts.reduce((acc, post) => {
+	const folder = getFolderName(post.id);
+	if (!acc[folder]) acc[folder] = [];
+	acc[folder].push(post);
+	return acc;
+}, {} as Record<string, typeof posts>);
+
+// フォルダ名でソート（FOLDER_CONFIGのorder順）
+const sortedFolders = Object.keys(groupedPosts).sort(
+	(a, b) => (FOLDER_CONFIG[a]?.order ?? 999) - (FOLDER_CONFIG[b]?.order ?? 999)
 );
 
 const baseUrl = import.meta.env.BASE_URL;
@@ -25,6 +41,15 @@ const baseUrl = import.meta.env.BASE_URL;
 				max-width: 800px;
 				margin: 0 auto;
 				padding: 2em 1em;
+			}
+			.folder-section {
+				margin-bottom: 3em;
+			}
+			.folder-title {
+				font-size: 1.5em;
+				margin-bottom: 1em;
+				padding-bottom: 0.5em;
+				border-bottom: 2px solid #333;
 			}
 			ul {
 				list-style: none;
@@ -44,15 +69,20 @@ const baseUrl = import.meta.env.BASE_URL;
 	</head>
 	<body>
 		<main>
-			<ul>
-				{posts.map((post) => (
-					<li>
-						<a href={`${baseUrl}${post.id}/`}>
-							<h3>{post.data.title}</h3>
-						</a>
-					</li>
-				))}
-			</ul>
+			{sortedFolders.map((folder) => (
+				<div class="folder-section">
+					<h2 class="folder-title">{FOLDER_CONFIG[folder]?.title ?? folder}</h2>
+					<ul>
+						{groupedPosts[folder].map((post) => (
+							<li>
+								<a href={`${baseUrl}${post.id}/`}>
+									<h3>{post.data.title}</h3>
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+			))}
 		</main>
 	</body>
 </html>
