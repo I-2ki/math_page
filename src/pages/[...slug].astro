@@ -33,6 +33,6 @@ const nextPost = post.data.next ? postMap.get(post.data.next) : null;
 	<div style="margin-top: 2em; display: flex; gap: 1em;">
 		{prevPost && <Link href={`/${prevPost.id}/`}>← {prevPost.data.title}</Link>}
 		<div style = "margin-left: auto;"></div>
-		{nextPost && <Link href={`/${nextPost.id}/`}>→ {nextPost.data.title}</Link>}
+		{nextPost && <Link href={`/${nextPost.id}/`}> {nextPost.data.title} →</Link>}
 	</div>
 </BlogPost>
